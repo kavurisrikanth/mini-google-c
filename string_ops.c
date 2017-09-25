@@ -4,7 +4,7 @@
 
 #include "string_ops.h"
 
-bool get_tag_text(char* str, char *buffer) {
+bool get_tag_text(char* str, char **buffer) {
     /*
         str is basically a string from < to >.
         In this function, we just return the text between
@@ -31,15 +31,22 @@ bool get_tag_text(char* str, char *buffer) {
     if(open_two != open_one) {
         // Opening tags are at different places on the same line
         // so the closing tags must be different
-        memcpy(buffer,
+        *buffer = (char*)allocate((1 + strlen(str)) * sizeof(char));
+        memcpy(*buffer,
                 str + (close_one - str) + 1,
                 (open_two - close_one - 1) * sizeof(char));
-        *(buffer + (open_two - close_one) - 1) = '\0';
+        *(*buffer + (open_two - close_one) - 1) = '\0';
+        printf("checking: %s\n", *buffer);
         return true;
         // i++;
     }
 
     printf("%ld\n", close_two - str);
+    return false;
+}
+
+bool get_tag_link(char* str, char **buffer) {
+
     return false;
 }
 

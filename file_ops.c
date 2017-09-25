@@ -11,8 +11,13 @@ int main(int argc, char const *argv[]) {
     return 1;
   }
 
-  int count = 0, i = 0;
-  char **strings = remove_tags((char*)argv[1], &count);
+  int count = 0, i = 0, link_count = 0;
+  char **strings = NULL, **links = NULL;
+
+  strings = (char**)allocate(1024 * sizeof(char*)),
+  links = (char**)allocate(1024 * sizeof(char*));
+
+  remove_tags((char*)argv[1], &count, &link_count, strings, links);
 
 #if 1
   printf("\n\nFinally...\n");
@@ -24,25 +29,36 @@ int main(int argc, char const *argv[]) {
     deallocate(*(strings + i));
   deallocate(strings);
 
+  for(i = 0; i < link_count; i++)
+    deallocate(*(links + i));
+    deallocate(links);
+
   return 0;
 }
 
-char** remove_tags(char *file, int *count) {
-
+void remove_tags(char *file, int *count, int *link_count, char **str, char **links) {
+    /*
+        Under construction function to read a file,
+        read the tags in the file, analyze the tags, and return
+        the text and links in the tags.
+        Functionality might move around later.
+    */
   FILE *fp = fopen(file, "r");
 
   // File opening failed.
   if(fp == NULL)
-    return false;
+    return;
 
     // int count = 0;
 
   printf("%s opened\n", file);
 
-  char **str = (char**)allocate(1024 * sizeof(char*)),
-        **links = (char**)allocate(1024 * sizeof(char*)),
-        *temp = (char*)allocate(1024 * sizeof(char));
-    int i = 0, j = 0;
+  // Allocate memory for the arrays
+  // str = (char**)allocate(1024 * sizeof(char*)),
+  // links = (char**)allocate(1024 * sizeof(char*));
+
+  char* temp = (char*)allocate(1024 * sizeof(char));
+  int i = 0, j = 0;
 
 #if 1
   while(fgets(temp, 1024, fp) != NULL) {
@@ -57,15 +73,20 @@ char** remove_tags(char *file, int *count) {
     // printf("temp: %s\n", temp);
     if(strlen(temp) > 0) {
 
-        if(*(str + i) != NULL)
-            *(str + i) = (char*)allocate((1 + strlen(temp)) * sizeof(char));
+        // Check if putting this in get_tag_text() is better
+        // if(*(str + i) != NULL)
+        //     *(str + i) = (char*)allocate((1 + strlen(temp)) * sizeof(char));
 
-        if(*(links + i) != NULL)
-            *(links + i) = (char*)allocate((1 + strlen(temp)) * sizeof(char));
+        // if(*(links + i) != NULL)
+        //     *(links + i) = (char*)allocate((1 + strlen(temp)) * sizeof(char));
 
-        if(get_tag_text(temp, *(str + i))) {
+        if(get_tag_text(temp, (str + i))) {
             printf("just added: %s\n", *(str + i));
             i++;
+        }
+
+        if(get_tag_link(temp, (links + j))) {
+            j++;
         }
     }
 
@@ -95,5 +116,5 @@ while(fscanf(fp, "\\s+?<%[^\n]s>", str) != EOF) {
 
 
   deallocate(temp);
-  return str;
+  // return str;
 }
