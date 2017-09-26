@@ -5,5 +5,6 @@
 #define FILE_OPS_H
 
 void remove_tags(char *file, int *count, int *link_count, char **str, char **links);
+char* get_directory(char *rel_path, bool *lin);
 
 #endif
