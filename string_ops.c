@@ -58,6 +58,8 @@ bool get_tag_link(char* str, char **buffer) {
     open = strchr(str, '<');
     // close = strchr(str, '>');
 
+    // printf("finding tag in: %s\n", str);
+
     if(open != NULL) {
         // it is a tag
         if(is_opening_tag(str)) {
@@ -166,4 +168,27 @@ int search_in_str(char *str, char *target) {
         return i;
     else
         return -1;
+}
+
+void insert(char **history, char *str, int pos) {
+    /*
+        Insert str into the array of strings.
+    */
+
+    *(history + pos) = (char*)allocate((1 + strlen(str)) * sizeof(char));
+    strcpy(*(history + pos), str);
+}
+
+bool visited(char **history, int num, char *str) {
+    /*
+        Searches history for str
+    */
+
+    int i = 0;
+    for(i = 0; i < num; i++) {
+        if(strcmp(*(history + i), str) == 0)
+            return true;
+    }
+
+    return false;
 }
