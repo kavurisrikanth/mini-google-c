@@ -2,77 +2,35 @@
 #include <string.h>
 #include <stdlib.h>
 
-void rstrip(char *str, char delim) {
-    /*
-        Remove spaces from the end of str.
-    */
-    char *temp;
-    do {
-        temp = strrchr(str, delim);
-        if(temp != NULL && *(temp + 1) == '\0')
-            *temp = '\0';
-    } while(temp != NULL && *(temp + 1) == '\0');
-}
-
-void lstrip(char *str, char delim) {
-    /*
-        Remove spaces from the start of str.
-    */
-    int i = 0;
-    while(*(str + i) == delim) {
-        i++;
-    }
-
-    // printf("str: %s, i: %d\n", str, i);
-
-    if(i == 0)
-        return;
-
-    int len = strlen(str), j = i;
-    // printf("\ni: %d\n", i);
-    // printf("str pre-memcpy: %s\n", str);
-    // memcpy(str, str + i, (len - 1 - i) * sizeof(char));
-    while(j <= len) {
-        *(str + j - i) = *(str + j);
-        j++;
-    }
-    // *(str + (len - 1 - i)) = '\0';
-    // printf("str post-memcpy: %shahaha\n\n", str);
-}
-
-void strip(char *str, char delim) {
-    /*
-        Remove spaces from the left and right of str.
-    */
-
-    // printf("stripping: %s\n", str);
-
-    rstrip(str, delim);
-    // printf("right stripped: %s\n", str);
-    lstrip(str, delim);
-
-    // printf("verdict: %s\n", str);
-}
+char* join(char** str_arr, int num);
 
 int main(void) {
 
-    FILE *fp = fopen("index.html", "r");
+    char* strs[3] = {
+        "hello, world", "blah blah blah", "harry potter truly was a miserable child"
+    };
 
-    if(fp == NULL) {
-        fprintf(stderr, "file opening failed\n");
-        return 1;
-    }
+    char *res = join(strs, 3);
+    printf("finally: %s\n", res);
+    free(res);
 
-    char *str = (char*)calloc(1, 1024 * sizeof(char));
-
-    while(fgets(str, 1024, fp) != NULL) {
-        strip(str, '\n');
-        strip(str, ' ');
-        //
-        printf("%sblabla\n", str);
-    }
-
-    free(str);
-    fclose(fp);
     return 0;
+}
+
+char* join(char** str_arr, int num) {
+
+    int i = 0, len = 0;
+    for(i = 0; i < num; i++)
+        len += strlen(str_arr[i]);
+
+    char *ans = (char*)calloc(1, (num + len) * sizeof(char));
+
+    for(i = 0; i < num; i++) {
+        strcat(ans, str_arr[i]);
+        if(i != num - 1)
+            strcat(ans, " ");
+    }
+    ans[len + num] = '\0';
+
+    return ans;
 }
