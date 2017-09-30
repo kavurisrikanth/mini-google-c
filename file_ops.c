@@ -2,7 +2,7 @@
 
 char** get_all_html_files_in_dir(char *path, int *files_count) {
 	/*
-		For now, prints all the files in a given directory.
+		Returns a list of all HTML files in a directory.
 	*/
 
 	DIR *dir;
@@ -107,8 +107,8 @@ char* get_directory(char *rel_path, bool *lin) {
         Returns the directory in which the file is present
     */
     char *abs_path = NULL,
-         *temp_lin = (char*)allocate((1 + strlen(rel_path)) * sizeof(char)),
-         *temp_win = (char*)allocate((1 + strlen(rel_path)) * sizeof(char));
+         *temp_lin = NULL,
+         *temp_win = NULL;
 
     temp_lin = strrchr(rel_path, '/');
     temp_win = strrchr(rel_path, '\\');
@@ -133,6 +133,8 @@ char* get_directory(char *rel_path, bool *lin) {
         abs_path = realpath(rel_path, NULL);
     }
 
+    // deallocate(temp_lin);
+    // deallocate(temp_win);
     return abs_path;
 }
 #endif
@@ -150,14 +152,14 @@ void read_and_parse_html(char *file, int *count, int *link_count, char **str, ch
   if(fp == NULL)
     return;
 
-  printf("%s opened\n", file);
+  printf("\n\n%s opened\n", file);
 
-  char* temp = (char*)allocate(1024 * sizeof(char));
+  char* temp = (char*)allocate(2048 * sizeof(char));
   int i = 0, j = 0;
 
-  while(fgets(temp, 1024, fp) != NULL) {
+  while(fgets(temp, 2048, fp) != NULL) {
 
-    strip(temp, ' ');
+    // strip(temp, ' ');
     strip(temp, '\n');
 
     if(strlen(temp) > 0) {

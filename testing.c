@@ -40,13 +40,15 @@ int main(int argc, char const *argv[]) {
         deallocate(*(files + i));
     deallocate(files);
 
-    printf("History\n");
+    printf("\n\nHistory\n");
     for(i = 0; i < hits; i++)
         printf("%s\n", *(history + i));
 
     for(i = 0; i < hits; i++)
         deallocate(*(history + i));
     deallocate(history);
+
+    deallocate(path);
 
     return 0;
 }

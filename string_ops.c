@@ -109,11 +109,21 @@ void lstrip(char *str, char delim) {
         i++;
     }
 
+    // printf("str: %s, i: %d\n", str, i);
+
     if(i == 0)
         return;
 
-    memcpy(str, str + i, (strlen(str) - i) * sizeof(char));
-    *(str + strlen(str) - i) = '\0';
+    int len = strlen(str), j = i;
+    // printf("\ni: %d\n", i);
+    // printf("str pre-memcpy: %s\n", str);
+    // memcpy(str, str + i, (len - 1 - i) * sizeof(char));
+    while(j <= len) {
+        *(str + j - i) = *(str + j);
+        j++;
+    }
+    // *(str + (len - 1 - i)) = '\0';
+    // printf("str post-memcpy: %shahaha\n\n", str);
 }
 
 void strip(char *str, char delim) {
