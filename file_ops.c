@@ -42,9 +42,6 @@ char** get_all_html_files_in_dir(char *path, int *files_count) {
 void blabla(char *file, char ***history, int *hits) {
   /* code */
 
-  if(visited(*history, *hits, file))
-    return;
-
   int count = 0, i = 0, link_count = 0;
   char **strings = NULL, **links = NULL;
 
@@ -54,20 +51,25 @@ void blabla(char *file, char ***history, int *hits) {
   char *path = get_directory(temp, &lin);
   printf("path: %s\n", path);
 
-  strings = (char**)allocate(1024 * sizeof(char*)),
-  links = (char**)allocate(1024 * sizeof(char*));
-
-  memset(temp, 0, 1024 * sizeof(char));
+    memset(temp, 0, 1024 * sizeof(char));
   if(!is_absolute_path(file)) {
       strcat(temp, path);
       strcat(temp, "/");
   }
   strcat(temp, file);
+
+    if(visited(*history, *hits, temp))
+    return;
+
+  strings = (char**)allocate(1024 * sizeof(char*)),
+  links = (char**)allocate(1024 * sizeof(char*));
+
   read_and_parse_html((char*)temp, &count, &link_count, strings, links);
   insert(*history, temp, *hits);
+  printf("Inserted into history: %s\n", temp);
   *hits += 1;
 
-#if 1
+#if 0
   printf("\n\nFinally...\n");
   for(i = 0; i < count; i++)
     printf("%s\n", *(strings + i));
@@ -80,7 +82,6 @@ void blabla(char *file, char ***history, int *hits) {
         // strcat(temp, path);
         // strcat(temp, "/");
         strcat(temp, *(links + i));
-        printf("%s\n", temp);
         if((fp = fopen(temp, "r")) != NULL) {
             printf("file opened: %s\n", temp);
             blabla(temp, history, hits);

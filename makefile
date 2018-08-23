@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-I. -Wall -g -lm
-TARGET=search
+TARGET=mini-google
 DEPS=file_struct.h
 OBJ = file_ops.o memory.o string_ops.o testing.o
 

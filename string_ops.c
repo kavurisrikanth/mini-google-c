@@ -18,15 +18,15 @@ bool get_tag_text(char* str, char **buffer) {
         buffer is where we fill in the data.
     */
 
-    // printf("received str: %saaa\n", str);
+    char *open_one = strchr(str, '<'),
+         *open_two = strrchr(str, '<'),
+         *close_one = strchr(str, '>');
 
-    char *open_one, *open_two, *close_one, *close_two;
-    // int i = 0;
-
-    open_one = strchr(str, '<');
-    close_one = strchr(str, '>');
-    open_two = strrchr(str, '<');
-    close_two = strrchr(str, '>');
+    //      , *close_two;
+    // open_one = strchr(str, '<');
+    // close_one = strchr(str, '>');
+    // open_two = strrchr(str, '<');
+    // close_two = strrchr(str, '>');
 
     if(open_two != open_one) {
         // Opening tags are at different places on the same line
@@ -53,7 +53,7 @@ bool get_tag_link(char* str, char **buffer) {
 
     char *open, *quote_one, *quote_two;
     // char *close;
-    int find = 0, i = 0;
+    int find = 0;
 
     open = strchr(str, '<');
     // close = strchr(str, '>');
@@ -195,10 +195,13 @@ bool visited(char **history, int num, char *str) {
     */
 
     int i = 0;
+    printf("\n");
     for(i = 0; i < num; i++) {
+        printf("Comparing %s and %s\n", *(history + i), str);
         if(strcmp(*(history + i), str) == 0)
             return true;
     }
+    printf("\n");
 
     return false;
 }

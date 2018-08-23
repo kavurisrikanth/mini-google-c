@@ -20,8 +20,8 @@ int main(int argc, char const *argv[]) {
     */
     bool lin = false;
     char *path = get_directory((char*)".", &lin),
-        **files = NULL,
-        **history = (char**)allocate(1024 * sizeof(char*));
+         **files = NULL,
+         **history = (char**)allocate(1024 * sizeof(char*));
     int num_files = 0, i = 0, hits = 0;
     files = get_all_html_files_in_dir(path, &num_files);
     printf("arg: %s\n", argv[1]);
@@ -33,6 +33,7 @@ int main(int argc, char const *argv[]) {
     else
         printf("No HTML files found in %s\n", path);
 
+    printf("\nFiles:\n");
     for(i = 0; i < num_files; i++)
         printf("file: %s\n", *(files + i));
 
