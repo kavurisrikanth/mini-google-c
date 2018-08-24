@@ -15,5 +15,9 @@ bool visited(char **history, int num, char *str);
 void lstrip(char *str, char delim);
 void rstrip(char *str, char delim);
 void strip(char *str, char delim);
+bool find_phrase(char **strings, int count, char *phrase);
+char* smoosh(char **strs, int len);
+void lower(char *str);
+bool find_in_string(char *s, char *p);
 
 #endif

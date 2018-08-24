@@ -66,22 +66,17 @@ bool get_tag_link(char* str, char **buffer) {
 
     open = strchr(str, '<');
 
-    if(open != NULL) {
-        // it is a tag
-        if(is_opening_tag(str)) {
-            // opening tag
-            if((find = search_in_str(str, (char*)"href")) != -1) {
-                quote_one = strchr(str + find, '"');
-                quote_two = strchr(quote_one + 1, '"');
+    if(open != NULL && is_opening_tag(str) && (find = search_in_str(str, (char*)"href")) != -1) {
+        // it is an opening tag
+        quote_one = strchr(str + find, '"');
+        quote_two = strchr(quote_one + 1, '"');
 
-                *buffer = (char*)allocate((quote_two - quote_one) * sizeof(char));
-                strncpy(*buffer, quote_one + 1, quote_two - quote_one - 1);
-                *(*buffer + (quote_two - quote_one)) = '\0';
+        *buffer = (char*)allocate((quote_two - quote_one) * sizeof(char));
+        strncpy(*buffer, quote_one + 1, quote_two - quote_one - 1);
+        *(*buffer + (quote_two - quote_one)) = '\0';
 
-                // only one href per tag.
-                return true;
-            }
-        }
+        // only one href per tag.
+        return true;
     }
 
     return false;
@@ -91,7 +86,7 @@ void rstrip(char *str, char delim) {
     /*
         Remove spaces from the end of str.
     */
-    char *temp;
+    char *temp = NULL;
     do {
         temp = strrchr(str, delim);
         if(temp != NULL && *(temp + 1) == '\0')
@@ -166,13 +161,13 @@ int search_in_str(char *str, char *target) {
         return -1;
 }
 
-void insert(char **history, char *str, int pos) {
+void insert(char **arr, char *str, int pos) {
     /*
         Insert str into the array of strings.
     */
 
-    *(history + pos) = (char*)allocate((1 + strlen(str)) * sizeof(char));
-    strcpy(*(history + pos), str);
+    *(arr + pos) = (char*)allocate((1 + strlen(str)) * sizeof(char));
+    strcpy(*(arr + pos), str);
 }
 
 bool visited(char **history, int num, char *str) {
@@ -183,11 +178,74 @@ bool visited(char **history, int num, char *str) {
     int i = 0;
     printf("\n");
     for(i = 0; i < num; i++) {
-        printf("Comparing %s and %s\n", *(history + i), str);
+        // printf("Comparing %s and %s\n", *(history + i), str);
         if(strcmp(*(history + i), str) == 0)
             return true;
     }
     printf("\n");
 
     return false;
+}
+
+/**
+ * Finds a given phrase in a given array of strings, after some operations on the strings.
+ *
+ * Inputs: strings - An array. Each entry has one string.
+ *         count - Number of entries in strings.
+ *         phrase - The phrase to search for.
+ * Output: Is the phrase in the strings or not? True or false.
+ */
+bool find_phrase(char **strings, int count, char *phrase) {
+    char* smooshed = smoosh(strings, count);
+    printf("\nSmooshed: %s\n", smooshed);
+    lower(smooshed);
+    lower(phrase);
+    bool ans = find_in_string(smooshed, phrase);
+    deallocate(smooshed);
+    return ans;
+}
+
+/**
+ *
+ */
+bool find_in_string(char *s, char *p) {
+    int p_len = strlen(p), s_len = strlen(s);
+    if(p_len > s_len)
+        return false;
+
+    return strstr(s, p) != NULL;
+}
+
+/**
+ * Converts the given string to lowercase. Non-alphabetical characters are left as they were.
+ */
+void lower(char *str) {
+    int len = strlen(str), i = 0;
+    for(i = 0; i < len; i++) {
+        if(str[i] >= 'A' && str[i] <= 'Z')
+            str[i] = (char)((int)str[i] + 32);
+    }
+}
+
+/**
+ * Smooshes an array of strings, meaning converts it to one single string.
+ */
+char* smoosh(char **strs, int len) {
+    size_t req = 0;
+    int i = 0;
+    for(i = 0; i < len; i++) {
+        req += strlen(*(strs + i));
+    }
+
+    // printf("Len: %d, req: %d\n", len, (int)req);
+
+    char *ans = (char*)allocate(2 * req);
+    char *space = " ";
+    for(i = 0; i < len; i++) {
+        // printf("Line: %s\n", *(strs + i));
+        strcat(ans, *(strs + i));
+        strcat(ans, space);
+    }
+    ans[2 * req] = '\0';
+    return ans;
 }

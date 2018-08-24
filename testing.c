@@ -21,14 +21,18 @@ int main(int argc, char const *argv[]) {
 
     char *path = get_directory((char*)"."),
          **files = NULL,
-         **history = (char**)allocate(1024 * sizeof(char*));
+         **history = (char**)allocate(1024 * sizeof(char*)),
+         **result = (char**)allocate(1024 * sizeof(char*)),
+         *phrase = (char*)allocate(4 * sizeof(char));
+    strcpy(phrase, "Bla");
+    phrase[4] = '\0';
     int num_files = 0, i = 0, hits = 0;
     files = get_all_html_files_in_dir(path, &num_files);
     printf("arg: %s\n", argv[1]);
 
     if(num_files != 0) {
         for(i = 0; i < num_files; i++)
-            visit_file(*(files + i), &history, &hits);
+            visit_file(*(files + i), &history, &hits, &result, phrase);
     }
     else
         printf("No HTML files found in %s\n", path);
@@ -41,11 +45,15 @@ int main(int argc, char const *argv[]) {
         deallocate(*(files + i));
     deallocate(files);
 
-    printf("\n\nHistory\n");
+    printf("\n\nResults\n");
     for(i = 0; i < hits; i++)
-        printf("%s\n", *(history + i));
+        printf("%s\n", *(result + i));
 
     for(i = 0; i < hits; i++)
+        deallocate(*(result + i));
+    deallocate(result);
+
+    for(i = 0; i < num_files; i++)
         deallocate(*(history + i));
     deallocate(history);
 

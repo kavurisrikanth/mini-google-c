@@ -42,37 +42,23 @@ char** get_all_html_files_in_dir(char *path, int *files_count) {
 /**
  * Visits a file.
  */
-void visit_file(char *file, char ***history, int *hits) {
+void visit_file(char *file, char ***history, int *hits, char ***result, char *phrase) {
     /* code */
 
-    int count = 0, i = 0, link_count = 0;
+    int count = 0, i = 0, link_count = 0, num = 0;
     char **strings = NULL, **links = NULL;
 
     // Check if we are in Linux or Windows.
     // bool lin = false;
 
     // Since we are dealing with pointers, we'll play safe and have temporary pointers.
-    char *temp = (char*)allocate(1024 * sizeof(char));
+    char *temp = get_absolute_path(file);
 
-    // Copy file to temp.
-    strcpy(temp, file);
-
-    // Get the path to the file.
-    char *path = get_directory(temp);
-    printf("path: %s\n", path);
-
-    // Make sure temp has the absolute path to file.
-    if(!is_absolute_path(file)) {
-        strcat(temp, path);
-        strcat(temp, "/");
-    }
-    strcat(temp, file);
-    printf("temp outside: %s\n", temp);
+    // printf("temp outside: %s\n", temp);
 
     // If we've already visited this file, go back.
-    if(visited(*history, *hits, temp)) {
+    if(visited(*history, num, temp)) {
         deallocate(temp);
-        deallocate(path);
         return;
     }
 
@@ -83,9 +69,6 @@ void visit_file(char *file, char ***history, int *hits) {
     // Parse file and insert into history. We need to insert right now, since the next operation is
     // visiting files mentioned in this file. If we don't insert here, then we risk an infinite loop.
     read_and_parse_html((char*)temp, &count, &link_count, strings, links);
-    insert(*history, temp, *hits);
-    printf("Inserted into history: %s\n", temp);
-    *hits += 1;
 
 // Debug printout.
 #if 0
@@ -97,16 +80,25 @@ void visit_file(char *file, char ***history, int *hits) {
     /*
      * Actual major part here. Parse the strings to check for the required phrase.
      */
-
-    FILE *fp = NULL;
+     printf("Calling find phrase for file: %s\n", temp);
+     insert(*history, temp, num);
+     num++;
+    printf("Inserted into history: %s\n", temp);
+    if(find_phrase(strings, count, phrase)) {
+        insert(*result, temp, *hits);
+        *hits += 1;
+    }
 
     // And now the second major part. Visit all files that are mentioned in this file.
+    FILE *fp = NULL;
     for(i = 0; i < link_count; i++) {
-        memset(temp, 0, 1024 * sizeof(char));
-        strcat(temp, *(links + i));
-        if((fp = fopen(temp, "r")) != NULL) {
-            printf("temp inside: %s\n", temp);
-            visit_file(temp, history, hits);
+        deallocate(temp);
+        temp = get_absolute_path(*(links + i));
+
+        // Don't visit any file already visited. Not a fan of infinite loops.
+        if(!visited(*history, num, temp) && (fp = fopen(temp, "r")) != NULL) {
+            // printf("temp inside: %s\n", temp);
+            visit_file(temp, history, hits, result, phrase);
             fclose(fp);
         }
     }
@@ -122,7 +114,27 @@ void visit_file(char *file, char ***history, int *hits) {
         deallocate(*(links + i));
     deallocate(links);
 
+}
+
+/**
+ * Returns the absolute path of the given file.
+ */
+char* get_absolute_path(char *file) {
+    char *temp = (char*)allocate(1024 * sizeof(char));
+
+    // Get the path to the file.
+    char *path = get_directory(temp);
+    // printf("path: %s\n", path);
+
+    // Make sure temp has the absolute path to file.
+    if(!is_absolute_path(file)) {
+        strcat(temp, path);
+        strcat(temp, "/");
+    }
+    strcat(temp, file);
+
     deallocate(path);
+    return temp;
 }
 
 #if 1
@@ -165,13 +177,17 @@ void read_and_parse_html(char *file, int *count, int *link_count, char **str, ch
         the text and links in the tags.
         Functionality might move around later.
     */
+    // printf("Entered read method with file: %s\n", file);
   FILE *fp = fopen(file, "r");
 
   // File opening failed.
-  if(fp == NULL)
+  if(fp == NULL) {
+    // printf("Opening file \"%s\" opening failed. Returning.", file);
+    // printf(" Error: %s\n", strerror(errno));
     return;
+  }
 
-  printf("\n\n%s opened\n", file);
+//   printf("\n\n%s opened\n", file);
 
   char* temp = (char*)allocate(2048 * sizeof(char));
   int i = 0, j = 0;
