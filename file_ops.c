@@ -39,67 +39,90 @@ char** get_all_html_files_in_dir(char *path, int *files_count) {
 	return files;
 }
 
-void blabla(char *file, char ***history, int *hits) {
-  /* code */
+/**
+ * Visits a file.
+ */
+void visit_file(char *file, char ***history, int *hits) {
+    /* code */
 
-  int count = 0, i = 0, link_count = 0;
-  char **strings = NULL, **links = NULL;
+    int count = 0, i = 0, link_count = 0;
+    char **strings = NULL, **links = NULL;
 
-  bool lin = false;
-  char *temp = (char*)allocate(1024 * sizeof(char));
-  strcpy(temp, file);
-  char *path = get_directory(temp, &lin);
-  printf("path: %s\n", path);
+    // Check if we are in Linux or Windows.
+    bool lin = false;
 
-    memset(temp, 0, 1024 * sizeof(char));
-  if(!is_absolute_path(file)) {
-      strcat(temp, path);
-      strcat(temp, "/");
-  }
-  strcat(temp, file);
+    // Since we are dealing with pointers, we'll play safe and have temporary pointers.
+    char *temp = (char*)allocate(1024 * sizeof(char));
 
-    if(visited(*history, *hits, temp))
-    return;
+    // Copy file to temp.
+    strcpy(temp, file);
 
-  strings = (char**)allocate(1024 * sizeof(char*)),
-  links = (char**)allocate(1024 * sizeof(char*));
+    // Get the path to the file.
+    char *path = get_directory(temp, &lin);
+    printf("path: %s\n", path);
 
-  read_and_parse_html((char*)temp, &count, &link_count, strings, links);
-  insert(*history, temp, *hits);
-  printf("Inserted into history: %s\n", temp);
-  *hits += 1;
+    // Make sure temp has the absolute path to file.
+    if(!is_absolute_path(file)) {
+        strcat(temp, path);
+        strcat(temp, "/");
+    }
+    strcat(temp, file);
+    printf("temp outside: %s\n", temp);
 
+    // If we've already visited this file, go back.
+    if(visited(*history, *hits, temp)) {
+        deallocate(temp);
+        deallocate(path);
+        return;
+    }
+
+    // Get stuff ready.
+    strings = (char**)allocate(1024 * sizeof(char*)),
+    links = (char**)allocate(1024 * sizeof(char*));
+
+    // Parse file and insert into history. We need to insert right now, since the next operation is
+    // visiting files mentioned in this file. If we don't insert here, then we risk an infinite loop.
+    read_and_parse_html((char*)temp, &count, &link_count, strings, links);
+    insert(*history, temp, *hits);
+    printf("Inserted into history: %s\n", temp);
+    *hits += 1;
+
+// Debug printout.
 #if 0
-  printf("\n\nFinally...\n");
-  for(i = 0; i < count; i++)
-    printf("%s\n", *(strings + i));
+    printf("\n\nFinally...\n");
+    for(i = 0; i < count; i++)
+        printf("%s\n", *(strings + i));
 #endif
+
+    /*
+     * Actual major part here. Parse the strings to check for the required phrase.
+     */
 
     FILE *fp = NULL;
 
+    // And now the second major part. Visit all files that are mentioned in this file.
     for(i = 0; i < link_count; i++) {
         memset(temp, 0, 1024 * sizeof(char));
-        // strcat(temp, path);
-        // strcat(temp, "/");
         strcat(temp, *(links + i));
         if((fp = fopen(temp, "r")) != NULL) {
-            printf("file opened: %s\n", temp);
-            blabla(temp, history, hits);
+            printf("temp inside: %s\n", temp);
+            visit_file(temp, history, hits);
             fclose(fp);
         }
     }
+
+    // Free up used memory.
     deallocate(temp);
 
-  for(i = 0; i < count; i++)
-    deallocate(*(strings + i));
-  deallocate(strings);
+    for(i = 0; i < count; i++)
+        deallocate(*(strings + i));
+    deallocate(strings);
 
-  for(i = 0; i < link_count; i++)
-    deallocate(*(links + i));
+    for(i = 0; i < link_count; i++)
+        deallocate(*(links + i));
     deallocate(links);
 
     deallocate(path);
-  // return 0;
 }
 
 #if 1

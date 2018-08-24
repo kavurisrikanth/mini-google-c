@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
 
     if(num_files != 0) {
         for(i = 0; i < num_files; i++)
-            blabla(*(files + i), &history, &hits);
+            visit_file(*(files + i), &history, &hits);
     }
     else
         printf("No HTML files found in %s\n", path);

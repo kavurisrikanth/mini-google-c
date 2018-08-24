@@ -9,7 +9,7 @@
 
 void read_and_parse_html(char *file, int *count, int *link_count, char **str, char **links);
 char* get_directory(char *rel_path, bool *lin);
-void blabla(char *file, char ***history, int *hits);
+void visit_file(char *file, char ***history, int *hits);
 char** get_all_html_files_in_dir(char *path, int *files_count);
 bool is_absolute_path(char *str);
 

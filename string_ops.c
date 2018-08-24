@@ -148,12 +148,9 @@ int search_in_str(char *str, char *target) {
     int i = 0, len = strlen(str), tlen = strlen(target);
     char *temp = (char*)allocate((1 + tlen) * sizeof(char));
     bool found = false;
-    // int j = 0;
 
     for(i = 0; i < len - 1 - tlen; i++) {
-        // j = i + tlen;
         memset(temp, 0, (1 + tlen) * sizeof(char));
-        // memcpy()
         strncpy(temp, str + i, tlen);
         if(strcmp(temp, target) == 0) {
             // match found
