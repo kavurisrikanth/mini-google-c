@@ -4,6 +4,13 @@
 
 #include "string_ops.h"
 
+/**
+ * This method returns the raw text between an opening tag and a closing tag.
+ *
+ * Inputs: str - The string to parse.
+ *         buffer - The storage location of the result.
+ * Returns: Success code, true or false.
+ */
 bool get_tag_text(char* str, char **buffer) {
     /*
         str is basically a string from < to >.
@@ -22,64 +29,56 @@ bool get_tag_text(char* str, char **buffer) {
          *open_two = strrchr(str, '<'),
          *close_one = strchr(str, '>');
 
-    //      , *close_two;
-    // open_one = strchr(str, '<');
-    // close_one = strchr(str, '>');
-    // open_two = strrchr(str, '<');
-    // close_two = strrchr(str, '>');
-
+    // Opening tags are at different places on the same line, so the closing tags must be different.
+    // So we're good.
     if(open_two != open_one) {
-        // Opening tags are at different places on the same line
-        // so the closing tags must be different
+        // Allocate the buffer.
         *buffer = (char*)allocate((1 + strlen(str)) * sizeof(char));
+
+        // Some witchcraft to copy the exact text.
         memcpy(*buffer,
                 str + (close_one - str) + 1,
                 (open_two - close_one - 1) * sizeof(char));
+
+        // And terminate the string.
         *(*buffer + (open_two - close_one) - 1) = '\0';
-        // printf("checking: %s\n", *buffer);
+
+        // We're done, so return true.
         return true;
-        // i++;
     }
 
-    // printf("%ld\n", close_two - str);
+    // Some error in the string. So say so.
     return false;
 }
 
+/**
+ * If the tag is an opening <a> tag, returns the link for the href attribute.
+ *
+ * Inputs: str - The tag string.
+ *         buffer - The space for the result.
+ * Result: Status code: true or false.
+ */
 bool get_tag_link(char* str, char **buffer) {
-    /*
-        If the tag is an opening <a> tag, returns the link for the href
-        attribute.
-    */
 
     char *open, *quote_one, *quote_two;
-    // char *close;
+
     int find = 0;
 
     open = strchr(str, '<');
-    // close = strchr(str, '>');
-
-    // printf("finding tag in: %s\n", str);
 
     if(open != NULL) {
         // it is a tag
         if(is_opening_tag(str)) {
             // opening tag
             if((find = search_in_str(str, (char*)"href")) != -1) {
-                // printf("found at: %d\n", find);
-                // printf("plus find: %s\n", str + find);
                 quote_one = strchr(str + find, '"');
                 quote_two = strchr(quote_one + 1, '"');
-
-                // printf("q1: %s\n", quote_one);
-                // printf("q2: %s\n", quote_two);
-                // printf("diff: %d\n", quote_one - str);
 
                 *buffer = (char*)allocate((quote_two - quote_one) * sizeof(char));
                 strncpy(*buffer, quote_one + 1, quote_two - quote_one - 1);
                 *(*buffer + (quote_two - quote_one)) = '\0';
 
                 // only one href per tag.
-                // printf("recorded: %s\n", *buffer);
                 return true;
             }
         }
@@ -109,21 +108,15 @@ void lstrip(char *str, char delim) {
         i++;
     }
 
-    // printf("str: %s, i: %d\n", str, i);
-
     if(i == 0)
         return;
 
     int len = strlen(str), j = i;
-    // printf("\ni: %d\n", i);
-    // printf("str pre-memcpy: %s\n", str);
-    // memcpy(str, str + i, (len - 1 - i) * sizeof(char));
+
     while(j <= len) {
         *(str + j - i) = *(str + j);
         j++;
     }
-    // *(str + (len - 1 - i)) = '\0';
-    // printf("str post-memcpy: %shahaha\n\n", str);
 }
 
 void strip(char *str, char delim) {
@@ -131,13 +124,9 @@ void strip(char *str, char delim) {
         Remove spaces from the left and right of str.
     */
 
-    // printf("stripping: %s\n", str);
-
     rstrip(str, delim);
-    // printf("right stripped: %s\n", str);
     lstrip(str, delim);
 
-    // printf("verdict: %s\n", str);
 }
 
 bool is_opening_tag(char *str) {
