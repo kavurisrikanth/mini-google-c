@@ -49,7 +49,7 @@ void visit_file(char *file, char ***history, int *hits) {
     char **strings = NULL, **links = NULL;
 
     // Check if we are in Linux or Windows.
-    bool lin = false;
+    // bool lin = false;
 
     // Since we are dealing with pointers, we'll play safe and have temporary pointers.
     char *temp = (char*)allocate(1024 * sizeof(char));
@@ -58,7 +58,7 @@ void visit_file(char *file, char ***history, int *hits) {
     strcpy(temp, file);
 
     // Get the path to the file.
-    char *path = get_directory(temp, &lin);
+    char *path = get_directory(temp);
     printf("path: %s\n", path);
 
     // Make sure temp has the absolute path to file.
@@ -126,7 +126,7 @@ void visit_file(char *file, char ***history, int *hits) {
 }
 
 #if 1
-char* get_directory(char *rel_path, bool *lin) {
+char* get_directory(char *rel_path) {
     /*
         Returns the directory in which the file is present
     */
@@ -138,27 +138,22 @@ char* get_directory(char *rel_path, bool *lin) {
     temp_win = strrchr(rel_path, '\\');
 
     if(temp_lin == NULL && temp_win == NULL) {
-        *lin = true;
         abs_path = realpath((char*)".", NULL);
         return abs_path;
     }
 
     if(temp_lin != NULL) {
         // Linux
-        *lin = true;
         *temp_lin = '\0';
         abs_path = realpath(rel_path, NULL);
     }
 
     if(temp_win != NULL) {
         // Windows
-        *lin = false;
         *temp_win = '\0';
         abs_path = realpath(rel_path, NULL);
     }
 
-    // deallocate(temp_lin);
-    // deallocate(temp_win);
     return abs_path;
 }
 #endif

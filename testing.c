@@ -18,8 +18,8 @@ int main(int argc, char const *argv[]) {
      * So decide on the location of the HTML files,
      * and then search
     */
-    bool lin = false;
-    char *path = get_directory((char*)".", &lin),
+
+    char *path = get_directory((char*)"."),
          **files = NULL,
          **history = (char**)allocate(1024 * sizeof(char*));
     int num_files = 0, i = 0, hits = 0;
